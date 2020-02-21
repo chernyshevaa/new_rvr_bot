@@ -33,7 +33,9 @@ class Bot(TeleBot):
 
         self.logger = logger
         self.sheet = Sheet(logger)
-        self.code2user = self.sheet.get_user_list()
+        # self.code2user = self.sheet.get_user_list()
+        self.code2user = self.get_user_list_from_csv()
+
 
         for user in self.code2user.values():
             self.order_male2name[(user['order'], 1 if user['sex'] == 'male' else 0)] = user['name'].split()[1] if len(
@@ -78,3 +80,30 @@ class Bot(TeleBot):
         for code, user in self.users.items():
             if user.code == code:
                 user.update(self.code2user[code])
+
+    def get_user_list_from_csv(self):
+        code2user = {}
+        f_girls = open("girls.csv")
+        girls = f_girls.readlines()
+
+        for user in girls:
+            splitted = user[:-1].split(',')
+            code2user[user[3]] = {
+                'sex': 'female',
+                'name': splitted[1],
+                'from': splitted[2],
+                'order': int(splitted[0])
+            }
+        f_girls.close()
+
+        f_boys = open("boys.csv")
+        boys = f_boys.readlines()
+        for user in boys:
+            code2user[user[3]] = {
+                'sex': 'male',
+                'name': splitted[1],
+                'from': splitted[2],
+                'order': int(splitted[0]
+                             )
+            }
+        return code2user
