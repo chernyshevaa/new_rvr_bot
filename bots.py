@@ -89,7 +89,7 @@ class Bot(TeleBot):
 
         for user in girls:
             splitted = user[:-1].split(',')
-            code2user[user[3]] = {
+            code2user[splitted[3]] = {
                 'sex': 'female',
                 'name': splitted[1],
                 'from': splitted[2],
@@ -100,7 +100,8 @@ class Bot(TeleBot):
         f_boys = open("boys.csv")
         boys = f_boys.readlines()
         for user in boys:
-            code2user[user[3]] = {
+            splitted = user[:-1].split(',')
+            code2user[splitted[3]] = {
                 'sex': 'male',
                 'name': splitted[1],
                 'from': splitted[2],
