@@ -6,7 +6,7 @@ from telebot.types import (
     KeyboardButton
 )
 import os
-from sheets import Sheet
+# from sheets import Sheet
 
 
 class Bot(TeleBot):
@@ -32,7 +32,7 @@ class Bot(TeleBot):
             self.username2id[user.username] = user.id
 
         self.logger = logger
-        self.sheet = Sheet(logger)
+        # self.sheet = Sheet(logger)
         # self.code2user = self.sheet.get_user_list()
         self.code2user = self.get_user_list_from_csv()
 
@@ -76,7 +76,8 @@ class Bot(TeleBot):
         super().polling()
 
     def update(self):
-        self.code2user = self.sheet.get_user_list()
+        # self.code2user = self.sheet.get_user_list()
+        self.code2user = self.get_user_list_from_csv()
         for code, user in self.users.items():
             if user.code == code:
                 user.update(self.code2user[code])
