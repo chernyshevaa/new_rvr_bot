@@ -35,6 +35,7 @@ class Bot(TeleBot):
         # self.sheet = Sheet(logger)
         # self.code2user = self.sheet.get_user_list()
         self.code2user = self.get_user_list_from_csv()
+        print(self.code2user)
 
 
         for user in self.code2user.values():
@@ -84,7 +85,7 @@ class Bot(TeleBot):
 
     def get_user_list_from_csv(self):
         code2user = {}
-        f_girls = open("girls.csv")
+        f_girls = open("girls.csv", encoding="utf-8")
         girls = f_girls.readlines()
 
         for user in girls:
@@ -97,7 +98,7 @@ class Bot(TeleBot):
             }
         f_girls.close()
 
-        f_boys = open("boys.csv")
+        f_boys = open("boys.csv", encoding="utf-8")
         boys = f_boys.readlines()
         for user in boys:
             splitted = user[:-1].split(',')
