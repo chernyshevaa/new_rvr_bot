@@ -1,12 +1,9 @@
 from telebot import TeleBot
 from users import *
 from threading import Lock
-from telebot.types import (
-    ReplyKeyboardMarkup,
-    KeyboardButton
-)
+
 import os
-# from sheets import Sheet
+
 
 
 class Bot(TeleBot):
@@ -32,11 +29,8 @@ class Bot(TeleBot):
             self.username2id[user.username] = user.id
 
         self.logger = logger
-        # self.sheet = Sheet(logger)
-        # self.code2user = self.sheet.get_user_list()
-        self.code2user = self.get_user_list_from_csv()
-        print(self.code2user)
 
+        self.code2user = self.get_user_list_from_csv()
 
         for user in self.code2user.values():
             self.order_male2name[(user['order'], 1 if user['sex'] == 'male' else 0)] = user['name'].split()[1] if len(
@@ -52,6 +46,7 @@ class Bot(TeleBot):
             self.lock.acquire()
             if message.from_user.id in self.users:
                 self.send_message(message.from_user.id, 'Alredy logged in')
+                self.lock.release()
                 return
             self.users[message.from_user.id] = User(message.from_user, self)
             self.lock.release()
@@ -63,21 +58,19 @@ class Bot(TeleBot):
                              % (message.from_user.username, message.from_user.first_name, message.from_user.last_name,
                                 message.text))
             self.lock.acquire()
-            # logger.info("locked")
             if not message.from_user.id in self.users:
                 self.send_message(message.from_user.id, 'Type "/start" to start')
+                self.lock.release()
                 return
             self.users[message.from_user.id].onNewMessage(message)
             self.lock.release()
-            # logger.info("unlocked")
 
         self.logger.info('Bot initialized')
 
     def start(self):
-        super().polling()
+        super().polling(none_stop=True, timeout=123)
 
     def update(self):
-        # self.code2user = self.sheet.get_user_list()
         self.code2user = self.get_user_list_from_csv()
         for code, user in self.users.items():
             if user.code == code:
@@ -85,6 +78,7 @@ class Bot(TeleBot):
 
     def get_user_list_from_csv(self):
         code2user = {}
+
         f_girls = open("girls.csv", encoding="utf-8")
         girls = f_girls.readlines()
 

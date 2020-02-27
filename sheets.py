@@ -5,7 +5,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 columns = ['', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-           'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH']
+           'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH',
+           'AI', 'AJ', 'AK']
 
 
 def cell(x, y):
@@ -14,6 +15,10 @@ def cell(x, y):
 
 def make_range(c1, c2, list_name):
     return list_name + '!' + ':'.join([c1, c2])
+
+
+def make_cell(x, y, list_name):
+    return list_name + '!' + cell(x, y)
 
 
 class Sheet:
@@ -47,17 +52,33 @@ class Sheet:
             with open(token_path, 'wb') as token:
                 pickle.dump(creds, token)
 
+        self.data = []
+
         self.service = build('sheets', 'v4', credentials=creds)
         self.logger.info('Sheet initialized')
 
     def write(self, values, _range):
         body = {
-            'values': values
+            'values': [values]
         }
         result = self.service.spreadsheets().values().update(
             spreadsheetId=self.SPREADSHEET_ID, range=_range,
             valueInputOption=self.value_input_option, body=body).execute()
+
         print('{0} cells updated.'.format(result.get('updatedCells')))
+
+    def write_batch(self):
+
+        body = {
+            'valueInputOption': self.value_input_option,
+            'data': self.data
+        }
+
+        result = self.service.spreadsheets().values().batchUpdate(
+            spreadsheetId=self.SPREADSHEET_ID,
+            body=body).execute()
+
+        print('{0} cells updated.'.format(result.get('totalUpdatedCells')))
 
     # def refresh(self, state, pair, marks=None, _from=None):
     # 	col, row = pair
@@ -88,6 +109,39 @@ class Sheet:
                 c = '!'
             marks = [[c, c], [c, c]]
             self.write(marks, _range)
+
+    def new_update(self, x, y, circle, marks=None, _from=None):
+
+        if _from == 'male':
+            boy = x
+            girl = y
+            b = 0
+        else:
+            boy = y
+            girl = x
+            b = 1
+
+        _range = make_cell(boy + 1, 2 * girl + b, 'marks_{}'.format(circle))
+
+        self.write([marks], _range)
+
+    def new_batch_update(self, x, y, circle, marks=None, _from=None):
+
+        if _from == 'male':
+            boy = x
+            girl = y
+            b = 0
+        else:
+            boy = y
+            girl = x
+            b = 1
+
+        _range = make_cell(boy + 1, 2 * girl + b, 'marks_{}'.format(circle))
+
+        value_range = {}
+        value_range['range'] = _range
+        value_range["values"] = [[marks]]
+        self.data.append(value_range)
 
     def get_user_list(self):
         code2user = {}
