@@ -54,10 +54,10 @@ class Bot(TeleBot):
 
         @TeleBot.message_handler(self)
         def onNewMessage(message):
+            self.lock.acquire()
             self.logger.info('New message from %s (%s %s): %s'
                              % (message.from_user.username, message.from_user.first_name, message.from_user.last_name,
                                 message.text))
-            self.lock.acquire()
             if not message.from_user.id in self.users:
                 self.send_message(message.from_user.id, 'Type "/start" to start')
                 self.lock.release()

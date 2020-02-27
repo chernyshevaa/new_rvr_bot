@@ -39,10 +39,10 @@ a - admin
 """
 admins = [line[:-1] for line in open('admins', 'r').readlines()]
 
-first_circle_n = 2
-max_n = 4
+first_circle_n = 18
+max_n = 36
 
-max_con = 2
+max_con = 18
 
 f = open("answers.txt", "a+")
 
